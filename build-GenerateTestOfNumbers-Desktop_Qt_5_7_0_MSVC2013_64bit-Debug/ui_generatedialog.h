@@ -262,6 +262,8 @@ public:
         horizontalLayout_8->setObjectName(QStringLiteral("horizontalLayout_8"));
         lineEdit = new QLineEdit(generatedialog);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
+        lineEdit->setEnabled(true);
+        lineEdit->setReadOnly(true);
 
         horizontalLayout_8->addWidget(lineEdit);
 

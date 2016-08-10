@@ -229,6 +229,7 @@ Makefile: ..\GenerateTestOfNumbers\GenerateTestOfNumbers.pro ..\..\Qt\5.7\msvc20
 		..\..\Qt\5.7\msvc2013_64\mkspecs\features\lex.prf \
 		..\GenerateTestOfNumbers\GenerateTestOfNumbers.pro \
 		..\..\Qt\5.7\msvc2013_64\lib\qtmaind.prl \
+		..\..\Qt\5.7\msvc2013_64\lib\Qt5PrintSupport.prl \
 		..\..\Qt\5.7\msvc2013_64\lib\Qt5Widgets.prl \
 		..\..\Qt\5.7\msvc2013_64\lib\Qt5Gui.prl \
 		..\..\Qt\5.7\msvc2013_64\lib\Qt5Core.prl
@@ -389,6 +390,7 @@ Makefile: ..\GenerateTestOfNumbers\GenerateTestOfNumbers.pro ..\..\Qt\5.7\msvc20
 ..\..\Qt\5.7\msvc2013_64\mkspecs\features\lex.prf:
 ..\GenerateTestOfNumbers\GenerateTestOfNumbers.pro:
 ..\..\Qt\5.7\msvc2013_64\lib\qtmaind.prl:
+..\..\Qt\5.7\msvc2013_64\lib\Qt5PrintSupport.prl:
 ..\..\Qt\5.7\msvc2013_64\lib\Qt5Widgets.prl:
 ..\..\Qt\5.7\msvc2013_64\lib\Qt5Gui.prl:
 ..\..\Qt\5.7\msvc2013_64\lib\Qt5Core.prl:

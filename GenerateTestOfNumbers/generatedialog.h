@@ -13,6 +13,7 @@ public:
 
 private slots:
     void getFullFileName();
+    void generateTest();
 
 };
 
