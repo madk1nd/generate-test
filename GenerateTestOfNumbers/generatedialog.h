@@ -11,6 +11,9 @@ class generatedialog : public QWidget, public Ui::generatedialog
 public:
     generatedialog(QWidget *parent = 0);
 
+private:
+    void writeTestToFile(QTextDocument &name);
+
 private slots:
     void getFullFileName();
     void generateTest();

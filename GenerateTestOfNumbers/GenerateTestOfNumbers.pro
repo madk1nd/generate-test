@@ -14,8 +14,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        generatedialog.cpp
+        generatedialog.cpp \
+    answer.cpp \
+    question.cpp
 
-HEADERS  += generatedialog.h
+HEADERS  += generatedialog.h \
+    question.h \
+    answer.h
 
 FORMS    += generatedialog.ui

@@ -3,6 +3,7 @@
 #include <QPrinter>
 #include "generatedialog.h"
 #include "ui_generatedialog.h"
+#include "question.h"
 
 generatedialog::generatedialog(QWidget *parent) :
     QWidget(parent)
@@ -25,12 +26,22 @@ void generatedialog::getFullFileName()
     lineEdit->setText(filename);
 }
 
+void generatedialog::writeTestToFile(QTextDocument &name)
+{
+    QString str;
+    QTextStream out(&str);
+    Question ques(456,10,2,1);
+    out<<ques.getQuestionTypeHow();
+    QTextCursor cursor(&name);
+    cursor.insertText(str);
+}
+
 void generatedialog::generateTest()
 {
     if (lineEdit->text().isEmpty())
     {
         QMessageBox::warning(this, tr("Что то пошло не так..."),
-                                tr("<h1>Ошибка</h1><p>Пожалуйста укажите место сохранения<br>файла с помощью кнопки <b>Обзор</b></p>"),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите место сохранения<br>файла с помощью кнопки <b>Обзор</b></p>"),
                                 QMessageBox::Ok );
         return;
     }
@@ -41,8 +52,11 @@ void generatedialog::generateTest()
     printer.setOutputFileName(lineEdit->text());
 
     QTextDocument doc;
-    doc.setHtml("<h1>Hello, World!</h1>\n<p>Lorem ipsum dolor sit amet, consectitur adipisci elit.</p>");
+    writeTestToFile(doc);
+    /*doc.setHtml("<h1>Hello, World!</h1>\n<p>Lorem ipsum dolor sit amet, consectitur adipisci elit.</p>");*/
     doc.print(&printer);
     QApplication::restoreOverrideCursor();
     lineEdit->clear();
 }
+
+
