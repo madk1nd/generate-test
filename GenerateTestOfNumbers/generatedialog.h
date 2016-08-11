@@ -13,7 +13,9 @@ public:
 
 private:
     void writeTestToFile(QTextDocument &name);
-    qint16 setRangeOfNumbers();
+    bool checkIsCorrect();
+    bool systemsAreEmpty();
+    qint16 getRangeOfNumbersVariant();
     void generateQuestionOfNumbers(qint16* array, qint16 variant);
     void deleteDulicates(qint16* array);
     void getAvailableTranslationsMethods(bool* systems);

@@ -31,11 +31,8 @@ void generatedialog::getFullFileName()
 
 void generatedialog::generateTest()
 {
-    if (lineEdit->text().isEmpty())
+    if (!checkIsCorrect())
     {
-        QMessageBox::warning(this, tr("Что то пошло не так..."),
-                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите место сохранения<br>файла с помощью кнопки <b>Обзор</b></p>"),
-                                QMessageBox::Ok );
         return;
     }
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -52,6 +49,56 @@ void generatedialog::generateTest()
     lineEdit->clear();
 }
 
+bool generatedialog::checkIsCorrect()
+{
+    if (getRangeOfNumbersVariant() == 0)
+    {
+        QMessageBox::warning(this, tr("Что то пошло не так..."),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите диапазон чисел!</p>"),
+                                QMessageBox::Ok );
+        return false;
+    }
+    if (systemsAreEmpty())
+    {
+        QMessageBox::warning(this, tr("Что то пошло не так..."),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите хотя бы один способ перевода чисел!</p>"),
+                                QMessageBox::Ok );
+        return false;
+    }
+    if (!formulationHowCheckBox->isChecked() && !formulationWhatCheckBox->isChecked())
+    {
+        QMessageBox::warning(this, tr("Что то пошло не так..."),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите хотя бы один способ формулировки вопроса!</p>"),
+                                QMessageBox::Ok );
+        return false;
+    }
+    if (lineEdit->text().isEmpty())
+    {
+        QMessageBox::warning(this, tr("Что то пошло не так..."),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите место сохранения<br>файла с помощью кнопки <b>Обзор</b></p>"),
+                                QMessageBox::Ok );
+        return false;
+    }
+    return true;
+}
+
+bool generatedialog::systemsAreEmpty()
+{
+    qint16 result = 0;
+    if(radix10And2CheckBox->isChecked()) result+=1;
+    if(radix10And8CheckBox->isChecked()) result+=1;
+    if(radix10And16CheckBox->isChecked()) result+=1;
+    if(radix2And8CheckBox->isChecked()) result+=1;
+    if(radix2And16CheckBox->isChecked()) result+=1;
+    if(radix8And16CheckBox->isChecked()) result+=1;
+    if(radix10AndRandomCheckBox->isChecked()) result+=1;
+    if(radixRandomAnd10CheckBox->isChecked()) result+=1;
+    if(radixRandomAndRandomCheckBox->isChecked()) result+=1;
+
+    if (result == 0) return true;
+    else return false;
+}
+
 void generatedialog::writeTestToFile(QTextDocument &name)
 {
     QString str;
@@ -65,7 +112,7 @@ void generatedialog::writeTestToFile(QTextDocument &name)
     for (int j = 0; j < variantSpinBox->value(); ++j)
     {
         out<<QString("\tВариант №")<<(j+1)<<QString("\n\n");
-        generateQuestionOfNumbers(arrayOfAnswers,setRangeOfNumbers());
+        generateQuestionOfNumbers(arrayOfAnswers,getRangeOfNumbersVariant());
         generateFirstAndLastRadix(arrayOfFirstRadix,arrayOfLastRadix);
         for (int i = 0; i < questionSpinBox->value(); ++i)
         {
@@ -86,7 +133,7 @@ void generatedialog::writeTestToFile(QTextDocument &name)
     delete arrayOfLastRadix;
 }
 
-qint16 generatedialog::setRangeOfNumbers()
+qint16 generatedialog::getRangeOfNumbersVariant()
 {
     qint16 result=0;
     if (easyRangeCheckBox->isChecked()) result+=1;
