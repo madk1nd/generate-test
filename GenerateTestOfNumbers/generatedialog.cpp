@@ -16,8 +16,19 @@ generatedialog::generatedialog(QWidget *parent) :
     connect(cancelButton,SIGNAL(clicked(bool)),this,SLOT(close()));
     connect(browseButton,SIGNAL(clicked(bool)),this,SLOT(getFullFileName()));
     connect(createButton,SIGNAL(clicked(bool)),this,SLOT(generateTest()));
+    connect(aboutButton, SIGNAL(clicked(bool)),this,SLOT(messageAbout()));
 
     setFixedSize(sizeHint().width(),sizeHint().height());
+}
+
+void generatedialog::messageAbout()
+{
+    QMessageBox::about(this, tr("О программе"),
+                            tr("<h3>Генератор тестов по системам счисления</h3>"
+                               "<h5>Версия 1.0</h5>"
+                               "<p>Программа предназначена для генерации тестов<br>"
+                               "по информатике на тему <b>Системы счисления</b></p>"));
+            return;
 }
 
 void generatedialog::getFullFileName()
@@ -27,29 +38,40 @@ void generatedialog::getFullFileName()
                                                     ".",
                                                     tr("Файлы PDF (*.pdf)"));
     lineEdit->setText(filename);
+    return;
 }
 
 void generatedialog::generateTest()
 {
-    if (!checkIsCorrect())
+    if (!checkErrorsIsCorrect())
     {
         return;
     }
+    QString filename = lineEdit->text();
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setPaperSize(QPrinter::A4);
-    printer.setOutputFileName(lineEdit->text());
+    printer.setOutputFileName(filename);
 
     QTextDocument doc;
-    writeTestToFile(doc);
-    /*doc.setHtml("<h1>Hello, World!</h1>\n<p>Lorem ipsum dolor sit amet, consectitur adipisci elit.</p>");*/
+    QTextDocument ans;
+    writeTestToFile(doc, ans);
+
     doc.print(&printer);
+    qint16 index = filename.indexOf(QString(".pdf"));
+    filename.insert(index, QString("_answers"));
+    printer.setOutputFileName(filename);
+    ans.print(&printer);
+
+
     QApplication::restoreOverrideCursor();
     lineEdit->clear();
+
+    return;
 }
 
-bool generatedialog::checkIsCorrect()
+bool generatedialog::checkErrorsIsCorrect()
 {
     if (getRangeOfNumbersVariant() == 0)
     {
@@ -99,26 +121,34 @@ bool generatedialog::systemsAreEmpty()
     else return false;
 }
 
-void generatedialog::writeTestToFile(QTextDocument &name)
+void generatedialog::writeTestToFile(QTextDocument &name, QTextDocument &ans)
 {
-    QString str;
-    QTextStream out(&str);
-    QTextCursor cursor(&name);
+    QString str, strAns;
+    QTextStream out(&str), outAns(&strAns);
+    QTextCursor cursor(&name), cursorAns(&ans);
     QTextBlockFormat textFormat;
     qint16 *arrayOfAnswers = new qint16[questionSpinBox->value()];
     qint16 *arrayOfFirstRadix = new qint16[questionSpinBox->value()];
     qint16 *arrayOfLastRadix = new qint16[questionSpinBox->value()];
+    qint16 *arrayOfFormulations = new qint16[questionSpinBox->value()];
 
+    outAns<<QString("\tОтветы.\n");
     for (int j = 0; j < variantSpinBox->value(); ++j)
     {
         out<<QString("\tВариант №")<<(j+1)<<QString("\n\n");
+        outAns<<QString("\n\tВариант №")<<(j+1)<<QString("\n\n");
         generateQuestionOfNumbers(arrayOfAnswers,getRangeOfNumbersVariant());
         generateFirstAndLastRadix(arrayOfFirstRadix,arrayOfLastRadix);
+        generateFormulations(arrayOfFormulations);
         for (int i = 0; i < questionSpinBox->value(); ++i)
         {
-            Question ques(arrayOfAnswers[i],arrayOfFirstRadix[i],arrayOfLastRadix[i],(1+rand()%2));
-            out<<(i+1)<<". "<<ques.getQuestionTypeHow();
+            Question ques(arrayOfAnswers[i],arrayOfFirstRadix[i],arrayOfLastRadix[i],arrayOfFormulations[i]);
+            out<<(i+1)<<QString(". ")<<ques.getQuestion();
+            outAns<<(i+1)<<QString(") ")<<ques.getNumberOfRightAnswer()<<QString("\n");
         }
+        cursorAns.insertText(strAns);
+        strAns.clear();
+
         cursor.insertText(str);
         textFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysAfter);
         cursor.setBlockFormat(textFormat);
@@ -131,6 +161,7 @@ void generatedialog::writeTestToFile(QTextDocument &name)
     delete arrayOfAnswers;
     delete arrayOfFirstRadix;
     delete arrayOfLastRadix;
+    return;
 }
 
 qint16 generatedialog::getRangeOfNumbersVariant()
@@ -140,6 +171,34 @@ qint16 generatedialog::getRangeOfNumbersVariant()
     if (normalRangeCheckBox->isChecked()) result+=1;
     if (hardRangeCheckBox->isChecked()) result+=1;
     return result;
+}
+
+void generatedialog::generateFormulations(qint16 *formArray)
+{
+    const qint16 MAX_QUESTIONS = questionSpinBox->value();
+    if (formulationHowCheckBox->isChecked() && formulationWhatCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
+        {
+            formArray[i] = 1;
+            if (i > (MAX_QUESTIONS/2)) formArray[i] = 2;
+        }
+    }
+    else if (formulationHowCheckBox->isChecked())
+        {
+            for (int i = 0; i < MAX_QUESTIONS; ++i)
+            {
+                formArray[i] = 1;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < MAX_QUESTIONS; ++i)
+            {
+                formArray[i] = 2;
+            }
+        }
+    return;
 }
 
 void generatedialog::generateQuestionOfNumbers(qint16 *array, qint16 variant)
@@ -247,6 +306,7 @@ void generatedialog::generateQuestionOfNumbers(qint16 *array, qint16 variant)
         }
     }
     deleteDulicates(array);
+    return;
 }
 
 void generatedialog::deleteDulicates(qint16 *array)
@@ -270,6 +330,7 @@ void generatedialog::deleteDulicates(qint16 *array)
             }
         }
     }
+    return;
 }
 
 void generatedialog::generateFirstAndLastRadix(qint16 *firstArray, qint16 *lastArray)
@@ -285,6 +346,7 @@ void generatedialog::generateFirstAndLastRadix(qint16 *firstArray, qint16 *lastA
         setFirstAndLastRadixToArray(firstArray,lastArray,type,i);
         i++;
     }
+    return;
 }
 
 void generatedialog::setFirstAndLastRadixToArray(qint16* firstArray, qint16* lastArray, qint16 type, qint16 count)
@@ -353,6 +415,7 @@ void generatedialog::setFirstAndLastRadixToArray(qint16* firstArray, qint16* las
             break;
         }
     }
+    return;
 }
 
 qint16 generatedialog::setRandomRadix(qint16 wrong)
@@ -395,4 +458,5 @@ void generatedialog::getAvailableTranslationsMethods(bool* systems)
     if(radix10AndRandomCheckBox->isChecked()) systems[6] = true;
     if(radixRandomAnd10CheckBox->isChecked()) systems[7] = true;
     if(radixRandomAndRandomCheckBox->isChecked()) systems[8] = true;
+    return;
 }

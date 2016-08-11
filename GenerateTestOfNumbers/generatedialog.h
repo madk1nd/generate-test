@@ -12,8 +12,8 @@ public:
     generatedialog(QWidget *parent = 0);
 
 private:
-    void writeTestToFile(QTextDocument &name);
-    bool checkIsCorrect();
+    void writeTestToFile(QTextDocument &name, QTextDocument &ans);
+    bool checkErrorsIsCorrect();
     bool systemsAreEmpty();
     qint16 getRangeOfNumbersVariant();
     void generateQuestionOfNumbers(qint16* array, qint16 variant);
@@ -23,11 +23,12 @@ private:
     qint16 setRandomRadix(qint16 wrong);
     void setFirstAndLastRadixToArray(qint16* fistArray, qint16* lastArray, qint16 type, qint16 count);
     void generateFirstAndLastRadix(qint16* firstArray, qint16* lastArray);
-
+    void generateFormulations(qint16 *formArray);
 
 private slots:
     void getFullFileName();
     void generateTest();
+    void messageAbout();
 
 };
 

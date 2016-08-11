@@ -12,7 +12,7 @@
 
 const qint16 MAX_ANSWERS = 4;
 const qint16 MAX_LENGHT_OF_QUESTION = 100;
-const qint16 RANGE_OF_WRONG_ANSWERS = 10;
+const qint16 RANGE_OF_WRONG_ANSWERS = 20;
 
 //Конструктор класса со значениями по умолчанию
 //и заданием неправильных ответов в три из четырех объектов Answer
@@ -155,52 +155,7 @@ void Question::changeRepeatedWrongAnswers(){
     //ни с правильным (обеспечено в функции generateWrongAnswer() )
 }
 
-//Генерируем строку для вывода вопроса
-char* Question::generateQuestion() const{
-
-    //указатель на возвращаемую строку с вопросом
-    char *questionPtr = new char[MAX_LENGHT_OF_QUESTION];
-
-    //формируем строку для вопроса типа 1
-    if ( typeOfQuestion == 1 ) {
-        questionPtr = strcpy( questionPtr, "Как представлено число " );
-        char *symbol = new char[MAX_LENGHT_OF_QUESTION];
-        itoa( number, symbol, firstRadix );
-        questionPtr = strcat( questionPtr, symbol );
-        questionPtr = strcat( questionPtr, " с основанием " );
-        itoa( firstRadix, symbol, 10 );
-        questionPtr = strcat( questionPtr, symbol );
-        questionPtr = strcat( questionPtr, " в системе счисления с основанием " );
-        itoa( lastRadix, symbol, 10 );
-        questionPtr = strcat( questionPtr, symbol );
-        questionPtr = strcat( questionPtr, " ?\n" );
-    }
-    else{ //иначе формируем сообщение о ошибке
-        questionPtr = strcpy( questionPtr, "Неправильно задан тип вопроса!!!\n" );
-    }
-
-    //возвращаем строку с вопросом или ошибкой
-    return questionPtr;
-}
-
-//вывод объекта Question целиком, через перегрузку операции "<<"
-//сначала выводится сам вопрос, а затем четыре варианта ответа вперемешку
-std::ostream &operator << (std::ostream &output, const Question &inputQuestion){
-
-    //вывод вопроса
-    output<<inputQuestion.generateQuestion();
-
-    //вывод ответов
-    output<<"1) "<<inputQuestion.first;
-    output<<"2) "<<inputQuestion.second;
-    output<<"3) "<<inputQuestion.third;
-    output<<"4) "<<inputQuestion.fourth;
-
-    //Обеспечиваем возможность сцепленных вызовов
-    return output;
-}
-
-QString Question::getQuestionTypeHow() const{
+QString Question::getQuestion() const{
     QString questionHow;
     QString answers;
     if (typeOfQuestion == 1)
@@ -232,31 +187,6 @@ QString Question::getQuestionTypeHow() const{
                             .arg(fourth.getAnswer(),0,lastRadix);
         questionHow.append(answers);
     }
-    /*questionHow += "\n1) ";
-    char symbol[MAX_LENGHT_OF_QUESTION];
-    questionHow += QString(itoa(first.getAnswer(),symbol,lastRadix));
-    questionHow +="\n2) ";
-    questionHow +=QString(itoa(second.getAnswer(),symbol,lastRadix));
-    questionHow +="\n3) ";
-    questionHow +=QString(itoa(third.getAnswer(),symbol,lastRadix));
-    questionHow +="\n4) ";
-    questionHow +=QString(itoa(fourth.getAnswer(),symbol,lastRadix));
-    /*char *questionPtr = new char[MAX_LENGHT_OF_QUESTION];
-    questionPtr = strcpy( questionPtr, generateQuestion() );
-    questionPtr = strcat( questionPtr, "\n1) " );
-    char *symbol = new char[MAX_LENGHT_OF_QUESTION];
-    char *p;
-    p=itoa(first.getAnswer(),symbol,lastRadix);
-    questionPtr = strcat( questionPtr, p);
-    questionPtr = strcat( questionPtr, "\n2) " );
-    p=itoa(second.getAnswer(),symbol,lastRadix);
-    questionPtr = strcat( questionPtr, p);
-    questionPtr = strcat( questionPtr, "\n3) " );
-    p=itoa(third.getAnswer(),symbol,lastRadix);
-    questionPtr = strcat( questionPtr, p);
-    questionPtr = strcat( questionPtr, "\n4) " );
-    p=itoa(fourth.getAnswer(),symbol,lastRadix);
-    questionPtr = strcat( questionPtr, p);*/
 
     return questionHow;
 }

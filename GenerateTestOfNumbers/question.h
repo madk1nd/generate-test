@@ -18,7 +18,6 @@
 #include <QString>
 
 class Question {
-    friend std::ostream &operator<<( std::ostream&, const Question& );
     public:
         Question( qint16 = 0, qint16 = 0, qint16 = 0, qint16 = 0 );
         void setNumber( qint16 );
@@ -33,9 +32,8 @@ class Question {
         qint16 getFirstRadix() const;
         qint16 getLastRadix() const;
         qint16 getNumberOfRightAnswer() const;
-        QString getQuestionTypeHow() const;
+        QString getQuestion() const;
     private:
-        char* generateQuestion() const;
         qint16 generateWrongAnswer() const;
         void shuffleAnswers();
         void changeRepeatedWrongAnswers();
