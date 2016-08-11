@@ -10,14 +10,14 @@
 #include "Question.h"
 #include "answer.h"
 
-const int MAX_ANSWERS = 4;
-const int MAX_LENGHT_OF_QUESTION = 100;
-const int RANGE_OF_WRONG_ANSWERS = 10;
+const qint16 MAX_ANSWERS = 4;
+const qint16 MAX_LENGHT_OF_QUESTION = 100;
+const qint16 RANGE_OF_WRONG_ANSWERS = 10;
 
 //Конструктор класса со значениями по умолчанию
 //и заданием неправильных ответов в три из четырех объектов Answer
-Question::Question( int inputNumber, int inputFirstRadix,
-                    int inputLastRadix, int inputType )
+Question::Question( qint16 inputNumber, qint16 inputFirstRadix,
+                    qint16 inputLastRadix, qint16 inputType )
     : 	first 	( inputNumber, inputLastRadix ),
         second 	( inputNumber, inputLastRadix ),
         third	( inputNumber, inputLastRadix ),
@@ -43,51 +43,51 @@ Question::Question( int inputNumber, int inputFirstRadix,
 }
 
 //Задаем значение номеру правильного ответа
-void Question::setNumberOfRightAnswer( int inputNumberOfRightAnswer ){
+void Question::setNumberOfRightAnswer( qint16 inputNumberOfRightAnswer ){
     numberOfRightAnswer = ( inputNumberOfRightAnswer > 0 && inputNumberOfRightAnswer < 5 ) ? inputNumberOfRightAnswer : 0 ;
 }
 
 //Задаем нужное число для операций в объекте Question
-void Question::setNumber( int inputNumber ){
+void Question::setNumber( qint16 inputNumber ){
     number = ( inputNumber > 0 && inputNumber < 4097 ) ? inputNumber : 0 ;
 }
 
 //Задаем исходное основание системы счисления в объекте Question
-void Question::setFirstRadix( int inputFirstRadix ){
+void Question::setFirstRadix( qint16 inputFirstRadix ){
     firstRadix = ( inputFirstRadix > 1 && inputFirstRadix < 33 ) ? inputFirstRadix : 0 ;
 }
 
 //Задаем конечное основание системы счисления в объекте Question
-void Question::setLastRadix( int inputLastRadix ){
+void Question::setLastRadix( qint16 inputLastRadix ){
     lastRadix = ( inputLastRadix > 1 && inputLastRadix < 33 ) ? inputLastRadix : 0 ;
 }
 
 //Задаем значение типу формулировки вопроса
-void Question::setTypeOfQuestion( int inputType ){
+void Question::setTypeOfQuestion( qint16 inputType ){
     typeOfQuestion = ( inputType > 0 && inputType < 4 ) ? inputType : 0;
 }
 
 //Задаем значение второму объекту Answer в объекте Question
-void Question::setSecondAnswer( int inputAnswer ){
+void Question::setSecondAnswer( qint16 inputAnswer ){
     second.setAnswer( inputAnswer );
 }
 
 //Задаем значение третьему объекту Answer в объекте Question
-void Question::setThirdAnswer( int inputAnswer ){
+void Question::setThirdAnswer( qint16 inputAnswer ){
     third.setAnswer( inputAnswer );
 }
 
 //Задаем значение четвертому объекту Answer в объекте Question
-void Question::setFourthAnswer( int inputAnswer ){
+void Question::setFourthAnswer( qint16 inputAnswer ){
     fourth.setAnswer( inputAnswer );
 }
 
 //Закрытая функция-утилита для генерации случайных неправильных ответов
-int Question::generateWrongAnswer() const {
+qint16 Question::generateWrongAnswer() const {
 
     //случайное значение в диапазоне +/-(RANGE_OF_WRONG_ANSWERS/2)
     //от правильного значения
-    int result = ( number + ( rand() % ( RANGE_OF_WRONG_ANSWERS + 1 ) ) ) -( RANGE_OF_WRONG_ANSWERS / 2 );
+    qint16 result = ( number + ( rand() % ( RANGE_OF_WRONG_ANSWERS + 1 ) ) ) -( RANGE_OF_WRONG_ANSWERS / 2 );
 
     //обеспечивается невозможность генерации отрицательного
     //значения или значения совпадающего с правильным
@@ -99,7 +99,7 @@ int Question::generateWrongAnswer() const {
 }
 
 //получить номер правильного ответа
-int Question::getNumberOfRightAnswer() const {
+qint16 Question::getNumberOfRightAnswer() const {
     return numberOfRightAnswer;
 }
 
@@ -117,16 +117,16 @@ void Question::shuffleAnswers() {
     ans[3]=&fourth;
 
     //цикл осуществляет перемешивание данных(ответов) в массиве
-    for ( int count = 0; count < MAX_ANSWERS; count++ ){
-        int temp = ans[count]->getAnswer();
-        int random = ( rand() % MAX_ANSWERS );
+    for ( qint16 count = 0; count < MAX_ANSWERS; count++ ){
+        qint16 temp = ans[count]->getAnswer();
+        qint16 random = ( rand() % MAX_ANSWERS );
         ans[count]->setAnswer( ans[random]->getAnswer() );
         ans[random]->setAnswer( temp );
     }
 
     //цикл ищет правильный ответ и запоминает номер этого ответа
     //нужно для последующего вывода списка только правильных ответов
-    for ( int count = 0; count < MAX_ANSWERS; count++ ){
+    for ( qint16 count = 0; count < MAX_ANSWERS; count++ ){
         if ( ans[count]->getAnswer() == number ) {
             numberOfRightAnswer = count + 1;
             return;
@@ -201,8 +201,38 @@ std::ostream &operator << (std::ostream &output, const Question &inputQuestion){
 }
 
 QString Question::getQuestionTypeHow() const{
-    QString questionHow = generateQuestion();
-    questionHow += "\n1) ";
+    QString questionHow;
+    QString answers;
+    if (typeOfQuestion == 1)
+    {
+        questionHow = QString("Как представлено число %1 с основанием %2 "
+                            "в системе счисления с основанием %3?\n")
+                            .arg(number,0,firstRadix)
+                            .arg(firstRadix)
+                            .arg(lastRadix);
+        answers = QString("   1) %1\n   2) %2\n   3) %3\n   4) %4\n")
+                            .arg(first.getAnswer(),0,lastRadix)
+                            .arg(second.getAnswer(),0,lastRadix)
+                            .arg(third.getAnswer(),0,lastRadix)
+                            .arg(fourth.getAnswer(),0,lastRadix);
+        questionHow.append(answers);
+    }
+    if (typeOfQuestion == 2)
+    {
+        questionHow = QString("Чему равно число %1 с основанием %2 "
+                            "в системе счисления с основанием %3?\n")
+                            .arg(number,0,firstRadix)
+                            .arg(firstRadix)
+                            .arg(lastRadix);
+        QString answers;
+        answers = QString("   1) %1\n   2) %2\n   3) %3\n   4) %4\n")
+                            .arg(first.getAnswer(),0,lastRadix)
+                            .arg(second.getAnswer(),0,lastRadix)
+                            .arg(third.getAnswer(),0,lastRadix)
+                            .arg(fourth.getAnswer(),0,lastRadix);
+        questionHow.append(answers);
+    }
+    /*questionHow += "\n1) ";
     char symbol[MAX_LENGHT_OF_QUESTION];
     questionHow += QString(itoa(first.getAnswer(),symbol,lastRadix));
     questionHow +="\n2) ";
