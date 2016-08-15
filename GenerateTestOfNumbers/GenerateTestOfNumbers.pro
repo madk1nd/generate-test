@@ -23,3 +23,5 @@ HEADERS  += generatedialog.h \
     answer.h
 
 FORMS    += generatedialog.ui
+
+RESOURCES = resources.qrc

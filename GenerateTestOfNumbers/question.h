@@ -32,9 +32,10 @@ class Question {
         qint16 getFirstRadix() const;
         qint16 getLastRadix() const;
         qint16 getNumberOfRightAnswer() const;
-        QString getQuestion() const;
+        QString getQuestion();
     private:
         qint16 generateWrongAnswer() const;
+        QString translateToRussian(bool variant);
         void shuffleAnswers();
         void changeRepeatedWrongAnswers();
         qint16 number;

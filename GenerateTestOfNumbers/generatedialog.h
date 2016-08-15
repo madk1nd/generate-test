@@ -16,7 +16,7 @@ private:
     bool checkErrorsIsCorrect();
     bool systemsAreEmpty();
     qint16 getRangeOfNumbersVariant();
-    void generateQuestionOfNumbers(qint16* array, qint16 variant);
+    void generateNumbers(qint16* array, qint16 variant);
     void deleteDulicates(qint16* array);
     void getAvailableTranslationsMethods(bool* systems);
     qint16 findType(bool* systems, qint16 type);

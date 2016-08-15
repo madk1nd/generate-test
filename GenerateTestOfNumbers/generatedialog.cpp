@@ -5,7 +5,7 @@
 #include "generatedialog.h"
 #include "ui_generatedialog.h"
 #include "question.h"
-const qint16 SYSTEMS_COUNT = 9;
+const qint16 SYSTEMS_COUNT = 15;
 const qint16 MAX_NUMERIC_SYSTEM_RADIX = 20;
 
 generatedialog::generatedialog(QWidget *parent) :
@@ -19,6 +19,7 @@ generatedialog::generatedialog(QWidget *parent) :
     connect(aboutButton, SIGNAL(clicked(bool)),this,SLOT(messageAbout()));
 
     setFixedSize(sizeHint().width(),sizeHint().height());
+    setWindowIcon(QIcon(":/images/kdevelop.png"));
 }
 
 void generatedialog::messageAbout()
@@ -73,10 +74,10 @@ void generatedialog::generateTest()
 
 bool generatedialog::checkErrorsIsCorrect()
 {
-    if (getRangeOfNumbersVariant() == 0)
+    if (!formulationHowCheckBox->isChecked() && !formulationWhatCheckBox->isChecked() && !formulationTranslateCheckBox->isChecked())
     {
         QMessageBox::warning(this, tr("Что то пошло не так..."),
-                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите диапазон чисел!</p>"),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите хотя бы один способ формулировки вопроса!</p>"),
                                 QMessageBox::Ok );
         return false;
     }
@@ -87,10 +88,10 @@ bool generatedialog::checkErrorsIsCorrect()
                                 QMessageBox::Ok );
         return false;
     }
-    if (!formulationHowCheckBox->isChecked() && !formulationWhatCheckBox->isChecked())
+    if (getRangeOfNumbersVariant() == 0)
     {
         QMessageBox::warning(this, tr("Что то пошло не так..."),
-                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите хотя бы один способ формулировки вопроса!</p>"),
+                                tr("<h3>Ошибка</h3><p>Пожалуйста укажите диапазон чисел!</p>"),
                                 QMessageBox::Ok );
         return false;
     }
@@ -112,7 +113,13 @@ bool generatedialog::systemsAreEmpty()
     if(radix10And16CheckBox->isChecked()) result+=1;
     if(radix2And8CheckBox->isChecked()) result+=1;
     if(radix2And16CheckBox->isChecked()) result+=1;
+    if(radix2And10CheckBox->isChecked()) result+=1;
+    if(radix8And10CheckBox->isChecked()) result+=1;
+    if(radix8And2CheckBox->isChecked()) result+=1;
     if(radix8And16CheckBox->isChecked()) result+=1;
+    if(radix16And10CheckBox->isChecked()) result+=1;
+    if(radix16And2CheckBox->isChecked()) result+=1;
+    if(radix16And8CheckBox->isChecked()) result+=1;
     if(radix10AndRandomCheckBox->isChecked()) result+=1;
     if(radixRandomAnd10CheckBox->isChecked()) result+=1;
     if(radixRandomAndRandomCheckBox->isChecked()) result+=1;
@@ -137,7 +144,7 @@ void generatedialog::writeTestToFile(QTextDocument &name, QTextDocument &ans)
     {
         out<<QString("\tВариант №")<<(j+1)<<QString("\n\n");
         outAns<<QString("\n\tВариант №")<<(j+1)<<QString("\n\n");
-        generateQuestionOfNumbers(arrayOfAnswers,getRangeOfNumbersVariant());
+        generateNumbers(arrayOfAnswers,getRangeOfNumbersVariant());
         generateFirstAndLastRadix(arrayOfFirstRadix,arrayOfLastRadix);
         generateFormulations(arrayOfFormulations);
         for (int i = 0; i < questionSpinBox->value(); ++i)
@@ -150,7 +157,9 @@ void generatedialog::writeTestToFile(QTextDocument &name, QTextDocument &ans)
         strAns.clear();
 
         cursor.insertText(str);
-        textFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysAfter);
+
+        if ((variantSpinBox->value()-j) != 1)
+            textFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysAfter);
         cursor.setBlockFormat(textFormat);
         cursor.insertBlock();
         textFormat.setPageBreakPolicy(QTextFormat::PageBreak_Auto);
@@ -161,6 +170,7 @@ void generatedialog::writeTestToFile(QTextDocument &name, QTextDocument &ans)
     delete arrayOfAnswers;
     delete arrayOfFirstRadix;
     delete arrayOfLastRadix;
+    delete arrayOfFormulations;
     return;
 }
 
@@ -176,7 +186,18 @@ qint16 generatedialog::getRangeOfNumbersVariant()
 void generatedialog::generateFormulations(qint16 *formArray)
 {
     const qint16 MAX_QUESTIONS = questionSpinBox->value();
-    if (formulationHowCheckBox->isChecked() && formulationWhatCheckBox->isChecked())
+    if (formulationHowCheckBox->isChecked() && formulationWhatCheckBox->isChecked() && formulationTranslateCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
+        {
+            formArray[i] = 1;
+            if (i > ((MAX_QUESTIONS*2)/3))
+                formArray[i] = 3;
+            else if (i > (MAX_QUESTIONS/3))
+                formArray[i] = 2;
+        }
+    }
+    else if (formulationHowCheckBox->isChecked() && formulationWhatCheckBox->isChecked())
     {
         for (int i = 0; i < MAX_QUESTIONS; ++i)
         {
@@ -184,24 +205,54 @@ void generatedialog::generateFormulations(qint16 *formArray)
             if (i > (MAX_QUESTIONS/2)) formArray[i] = 2;
         }
     }
+    else if (formulationWhatCheckBox->isChecked() && formulationTranslateCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
+        {
+            formArray[i] = 1;
+            if (i > (MAX_QUESTIONS/2)) formArray[i] = 3;
+        }
+    }
+    else if (formulationHowCheckBox->isChecked() && formulationTranslateCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
+        {
+            formArray[i] = 2;
+            if (i > (MAX_QUESTIONS/2)) formArray[i] = 3;
+        }
+    }
+    else if (formulationWhatCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
+        {
+            formArray[i] = 1;
+        }
+    }
     else if (formulationHowCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
         {
-            for (int i = 0; i < MAX_QUESTIONS; ++i)
-            {
-                formArray[i] = 1;
-            }
+            formArray[i] = 2;
         }
-        else
+    }
+    else if (formulationTranslateCheckBox->isChecked())
+    {
+        for (int i = 0; i < MAX_QUESTIONS; ++i)
         {
-            for (int i = 0; i < MAX_QUESTIONS; ++i)
-            {
-                formArray[i] = 2;
-            }
+            formArray[i] = 3;
         }
+    }
+    for (int i = 0; i < MAX_QUESTIONS; ++i)
+    {
+        qint16 random = rand() % MAX_QUESTIONS;
+        qint16 temp = formArray[i];
+        formArray[i] = formArray[random];
+        formArray[random] = temp;
+    }
     return;
 }
 
-void generatedialog::generateQuestionOfNumbers(qint16 *array, qint16 variant)
+void generatedialog::generateNumbers(qint16 *array, qint16 variant)
 {
     const qint16 MAX_QUESTIONS = questionSpinBox->value();
     qint16 minimum, range;
@@ -346,6 +397,7 @@ void generatedialog::generateFirstAndLastRadix(qint16 *firstArray, qint16 *lastA
         setFirstAndLastRadixToArray(firstArray,lastArray,type,i);
         i++;
     }
+    delete systems;
     return;
 }
 
@@ -374,34 +426,70 @@ void generatedialog::setFirstAndLastRadixToArray(qint16* firstArray, qint16* las
         case (3):
         {
             firstArray[count] = 2;
-            lastArray[count] = 8;
+            lastArray[count] = 10;
             break;
         }
         case (4):
         {
             firstArray[count] = 2;
-            lastArray[count] = 16;
+            lastArray[count] = 8;
             break;
         }
         case (5):
         {
-            firstArray[count] = 8;
+            firstArray[count] = 2;
             lastArray[count] = 16;
             break;
         }
         case (6):
         {
-            firstArray[count] = 10;
-            lastArray[count] = setRandomRadix(10);
+            firstArray[count] = 8;
+            lastArray[count] = 10;
             break;
         }
         case (7):
+        {
+            firstArray[count] = 8;
+            lastArray[count] = 2;
+            break;
+        }
+        case (8):
+        {
+            firstArray[count] = 8;
+            lastArray[count] = 16;
+            break;
+        }
+        case (9):
+        {
+            firstArray[count] = 16;
+            lastArray[count] = 2;
+            break;
+        }
+        case (10):
+        {
+            firstArray[count] = 16;
+            lastArray[count] = 8;
+            break;
+        }
+        case (11):
+        {
+            firstArray[count] = 16;
+            lastArray[count] = 10;
+            break;
+        }
+        case (12):
         {
             firstArray[count] = setRandomRadix(10);
             lastArray[count] = 10;
             break;
         }
-        case (8):
+        case (13):
+        {
+            firstArray[count] = 10;
+            lastArray[count] = setRandomRadix(10);
+            break;
+        }
+        case (14):
         {
             firstArray[count] = setRandomRadix(10);
             lastArray[count] = setRandomRadix(firstArray[count]);
@@ -452,11 +540,17 @@ void generatedialog::getAvailableTranslationsMethods(bool* systems)
     if(radix10And2CheckBox->isChecked()) systems[0] = true;
     if(radix10And8CheckBox->isChecked()) systems[1] = true;
     if(radix10And16CheckBox->isChecked()) systems[2] = true;
-    if(radix2And8CheckBox->isChecked()) systems[3] = true;
-    if(radix2And16CheckBox->isChecked()) systems[4] = true;
-    if(radix8And16CheckBox->isChecked()) systems[5] = true;
-    if(radix10AndRandomCheckBox->isChecked()) systems[6] = true;
-    if(radixRandomAnd10CheckBox->isChecked()) systems[7] = true;
-    if(radixRandomAndRandomCheckBox->isChecked()) systems[8] = true;
+    if(radix2And10CheckBox->isChecked()) systems[3] = true;
+    if(radix2And8CheckBox->isChecked()) systems[4] = true;
+    if(radix2And16CheckBox->isChecked()) systems[5] = true;
+    if(radix8And10CheckBox->isChecked()) systems[6] = true;
+    if(radix8And2CheckBox->isChecked()) systems[7] = true;
+    if(radix8And16CheckBox->isChecked()) systems[8] = true;
+    if(radix16And2CheckBox->isChecked()) systems[9] = true;
+    if(radix16And8CheckBox->isChecked()) systems[10] = true;
+    if(radix16And10CheckBox->isChecked()) systems[11] = true;
+    if(radixRandomAnd10CheckBox->isChecked()) systems[12] = true;
+    if(radix10AndRandomCheckBox->isChecked()) systems[13] = true;
+    if(radixRandomAndRandomCheckBox->isChecked()) systems[14] = true;
     return;
 }

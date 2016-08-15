@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <QString>
+#include <QList>
 #include "Question.h"
 #include "answer.h"
 
@@ -91,7 +92,7 @@ qint16 Question::generateWrongAnswer() const {
 
     //обеспечивается невозможность генерации отрицательного
     //значения или значения совпадающего с правильным
-    while ( result < 0 || result == number ) {
+    while ( result <= 0 || result == number ) {
         result = ( number + ( rand() % ( RANGE_OF_WRONG_ANSWERS + 1 ) ) ) -( RANGE_OF_WRONG_ANSWERS / 2 );
     }
 
@@ -155,38 +156,75 @@ void Question::changeRepeatedWrongAnswers(){
     //ни с правильным (обеспечено в функции generateWrongAnswer() )
 }
 
-QString Question::getQuestion() const{
-    QString questionHow;
-    QString answers;
+QString Question::translateToRussian(bool variant)
+{
+    QList<QString> list;
+    list<<"двоич"<<"троич"<<"четверич"<<"пятирич"<<"шестирич"<<"семирич"
+        <<"восьмирич"<<"девятич"<<"десятич"<<"одиннадцатирич"<<"двенадцатирич"
+        <<"тринадцатирич"<<"четырнадцатирич"<<"пятнадцатирич"<<"шестнадцатирич"
+        <<"семнадцатирич"<<"восемнадцатирич"<<"девятнадцатирич"<<"двадцатирич";
+    /*char *translations[19] = {"двоич", "троич", "четверич", "пятирич", "шестирич",
+            "семирич", "восьмирич", "девятич", "десятич", "одиннадцатирич", "двенадцатирич",
+            "тринадцатирич", "четырнадцатирич", "пятнадцатирич", "шестнадцатирич",
+            "семнадцатирич", "восемнадцатирич", "девятнадцатирич", "двадцатирич" };
+    */
+    if (variant)
+        return QString(list[firstRadix-2]);
+    else
+        return QString(list[lastRadix-2]);
+}
+
+QString Question::getQuestion(){
+
+    QString ans1,ans2,ans3,ans4;
+    ans1 = QString("%1").arg(first.getAnswer(),0,lastRadix);
+    ans2 = QString("%1").arg(second.getAnswer(),0,lastRadix);
+    ans3 = QString("%1").arg(third.getAnswer(),0,lastRadix);
+    ans4 = QString("%1").arg(fourth.getAnswer(),0,lastRadix);
+    if (lastRadix > 10)
+    {
+        ans1 = ans1.toUpper();
+        ans2 = ans2.toUpper();
+        ans3 = ans3.toUpper();
+        ans4 = ans4.toUpper();
+    }
+    QString answers = QString("   1) %1\n   2) %2\n   3) %3\n   4) %4\n")
+                        .arg(ans1)
+                        .arg(ans2)
+                        .arg(ans3)
+                        .arg(ans4);
+
+    QString realNumber = QString("%1").arg(number,0,firstRadix);
+    if (firstRadix > 10) realNumber = realNumber.toUpper();
+
+    QString questionReal;
     if (typeOfQuestion == 1)
     {
-        questionHow = QString("Как представлено число %1 с основанием %2 "
+        questionReal = QString("Чему равно %1ное число %2 "
                             "в системе счисления с основанием %3?\n")
-                            .arg(number,0,firstRadix)
-                            .arg(firstRadix)
+                            .arg(translateToRussian(true))
+                            .arg(realNumber)
                             .arg(lastRadix);
-        answers = QString("   1) %1\n   2) %2\n   3) %3\n   4) %4\n")
-                            .arg(first.getAnswer(),0,lastRadix)
-                            .arg(second.getAnswer(),0,lastRadix)
-                            .arg(third.getAnswer(),0,lastRadix)
-                            .arg(fourth.getAnswer(),0,lastRadix);
-        questionHow.append(answers);
+        questionReal.append(answers);
     }
     if (typeOfQuestion == 2)
     {
-        questionHow = QString("Чему равно число %1 с основанием %2 "
+        questionReal = QString("Как представлено число %1 с основанием %2 "
                             "в системе счисления с основанием %3?\n")
-                            .arg(number,0,firstRadix)
+                            .arg(realNumber)
                             .arg(firstRadix)
                             .arg(lastRadix);
-        QString answers;
-        answers = QString("   1) %1\n   2) %2\n   3) %3\n   4) %4\n")
-                            .arg(first.getAnswer(),0,lastRadix)
-                            .arg(second.getAnswer(),0,lastRadix)
-                            .arg(third.getAnswer(),0,lastRadix)
-                            .arg(fourth.getAnswer(),0,lastRadix);
-        questionHow.append(answers);
+        questionReal.append(answers);
+    }
+    if (typeOfQuestion == 3)
+    {
+        questionReal = QString("Переведите %1ное число %2 "
+                            "в %3ную систему счисления.\n")
+                            .arg(translateToRussian(true))
+                            .arg(realNumber)
+                            .arg(translateToRussian(false));
+        questionReal.append(answers);
     }
 
-    return questionHow;
+    return questionReal;
 }
