@@ -8,7 +8,7 @@
 #include <cstring>
 #include <QString>
 #include <QList>
-#include "Question.h"
+#include "question.h"
 #include "answer.h"
 
 const qint16 MAX_ANSWERS = 4;
